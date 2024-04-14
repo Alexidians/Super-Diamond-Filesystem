@@ -83,20 +83,19 @@
 
         // Display files and directories in file list
         const fileListElement = document.getElementById("fileList");
-        const filesAndDirs = fs.listFiles();
         fileListElement.innerHTML = ''; // Clear previous content
-        filesAndDirs.forEach(itemName => {
+        for (const itemName in fs.data) {
             const itemElement = document.createElement("div");
             itemElement.classList.add("file-item");
             itemElement.textContent = itemName;
             itemElement.onclick = async function() {
-                if (!fs.isDirectory(itemName)) {
-                    const content = fs.readItem(itemName);
+                if (!fs.data[itemName]) {
+                    const content = fs.data[itemName];
                     openEditingDiv(itemName, content);
                 }
             };
             fileListElement.appendChild(itemElement);
-        });
+        }
     }
 
     // Open editing div with file content
@@ -129,23 +128,9 @@
     async function createFile() {
         const fileName = prompt("Enter the name of the new file:");
         if (fileName) {
-            if (!fs.isDirectory(fileName)) {
+            if (!fs.data[fileName]) {
                 const content = prompt("Enter the content of the new file:");
                 fs.data[fileName] = content || '';
-                await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
-                initExplorer(); // Refresh file list
-            } else {
-                alert("A directory with the same name already exists.");
-            }
-        }
-    }
-
-    // Create directory
-    async function createDirectory() {
-        const dirName = prompt("Enter the name of the new directory:");
-        if (dirName) {
-            if (!fs.isDirectory(dirName)) {
-                fs.data[dirName] = {};
                 await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
                 initExplorer(); // Refresh file list
             } else {
@@ -154,20 +139,30 @@
         }
     }
 
+    // Create directory
+    async function createDirectory() {
+        const dirName = prompt("Enter the name of the new directory:");
+        if (dirName) {
+            if (!fs.data[dirName]) {
+                fs.data[dirName] = {};
+                await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
+                initExplorer(); // Refresh file list
+            } else {
+                alert("A directory with the same name already exists.");
+            }
+        }
+    }
+
     // Delete file or directory
     async function deleteFile() {
         const fileName = prompt("Enter the name of the file or directory to delete:");
         if (fileName) {
-            if (fs.isDirectory(fileName)) {
+            if (fs.data[fileName]) {
                 delete fs.data[fileName];
                 await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
                 initExplorer(); // Refresh file list
             } else {
-                if (confirm(`Are you sure you want to delete the file "${fileName}"?`)) {
-                    delete fs.data[fileName];
-                    await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
-                    initExplorer(); // Refresh file list
-                }
+                alert("File or directory not found.");
             }
         }
     }
@@ -177,5 +172,6 @@
 </script>
 </body>
 </html>
+
 
 
