@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Explorer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    .header {
+        padding: 10px;
+        background-color: #f0f0f0;
+    }
+    .file-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+    }
+    .file-item {
+        cursor: pointer;
+        margin-bottom: 5px;
+    }
+    .file-item:hover {
+        background-color: #f9f9f9;
+    }
+    .editing-div {
+        display: none;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+    }
+</style>
+<script src="https://alexidians.github.io/Super-Diamond-Store/store.js"></script>
+<script src="https://alexidians.github.io/Super-Diamond-Filesystem/super-diamond-fs.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>File Explorer</h2>
+        <label for="pathInput">Path:</label>
+        <input type="text" id="pathInput" value="">
+    </div>
+    <div class="file-list" id="fileList">
+        <!-- File list will be displayed here -->
+    </div>
+    <div class="editing-div" id="editingDiv">
+        <textarea id="fileContent" style="width: 100%; height: 200px;"></textarea>
+        <br>
+        <button onclick="saveFile()">Save</button>
+        <button onclick="closeEditingDiv()">Cancel</button>
+    </div>
+</div>
+
+<script>
+    // Initialize file explorer
+    async function initExplorer() {
+        // Initialize storage
+        await SuperDiamondFSInitalizeStorage();
+
+        // Check if filesystem exists
+        let fs;
+        try {
+            fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
+        } catch (error) {
+            // If filesystem doesn't exist, create it
+            fs = new SuperDiamondFSFilesystem("myFileSystem", {}, false);
+            await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
+        }
+
+        // Display files and directories in file list
+        const fileListElement = document.getElementById("fileList");
+        const filesAndDirs = fs.listFiles();
+        filesAndDirs.forEach(itemName => {
+            const itemElement = document.createElement("div");
+            itemElement.classList.add("file-item");
+            itemElement.textContent = itemName;
+            itemElement.onclick = async function() {
+                if (!fs.isDirectory(itemName)) {
+                    const content = fs.readItem(itemName);
+                    openEditingDiv(itemName, content);
+                }
+            };
+            fileListElement.appendChild(itemElement);
+        });
+    }
+
+    // Open editing div with file content
+    function openEditingDiv(fileName, content) {
+        const editingDiv = document.getElementById("editingDiv");
+        const fileContentTextarea = document.getElementById("fileContent");
+        fileContentTextarea.value = content;
+        editingDiv.style.display = "block";
+        fileContentTextarea.focus();
+    }
+
+    // Close editing div
+    function closeEditingDiv() {
+        const editingDiv = document.getElementById("editingDiv");
+        editingDiv.style.display = "none";
+    }
+
+    // Save file content
+    async function saveFile() {
+        const editingDiv = document.getElementById("editingDiv");
+        const fileContentTextarea = document.getElementById("fileContent");
+        const fileName = document.getElementsByClassName("file-item")[0].textContent; // Assuming only one file is opened at a time
+        const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
+        fs.data[fileName] = fileContentTextarea.value;
+        await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
+        closeEditingDiv();
+    }
+
+    // Initialize explorer when the page loads
+    window.onload = initExplorer;
+</script>
+</body>
+</html>
