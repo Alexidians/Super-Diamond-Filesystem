@@ -57,6 +57,11 @@
         <button onclick="saveFile()">Save</button>
         <button onclick="closeEditingDiv()">Cancel</button>
     </div>
+    <div class="actions">
+        <button onclick="createFile()">Create File</button>
+        <button onclick="createDirectory()">Create Directory</button>
+        <button onclick="deleteFile()">Delete File</button>
+    </div>
 </div>
 
 <script>
@@ -78,6 +83,7 @@
         // Display files and directories in file list
         const fileListElement = document.getElementById("fileList");
         const filesAndDirs = fs.listFiles();
+        fileListElement.innerHTML = ''; // Clear previous content
         filesAndDirs.forEach(itemName => {
             const itemElement = document.createElement("div");
             itemElement.classList.add("file-item");
@@ -118,8 +124,59 @@
         closeEditingDiv();
     }
 
+    // Create file
+    async function createFile() {
+        const fileName = prompt("Enter the name of the new file:");
+        if (fileName) {
+            const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
+            if (!fs.isDirectory(fileName)) {
+                const content = prompt("Enter the content of the new file:");
+                fs.data[fileName] = content || '';
+                await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
+                initExplorer(); // Refresh file list
+            } else {
+                alert("A directory with the same name already exists.");
+            }
+        }
+    }
+
+    // Create directory
+    async function createDirectory() {
+        const dirName = prompt("Enter the name of the new directory:");
+        if (dirName) {
+            const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
+            if (!fs.isDirectory(dirName)) {
+                fs.data[dirName] = {};
+                await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
+                initExplorer(); // Refresh file list
+            } else {
+                alert("A file with the same name already exists.");
+            }
+        }
+    }
+
+    // Delete file or directory
+    async function deleteFile() {
+        const fileName = prompt("Enter the name of the file or directory to delete:");
+        if (fileName) {
+            const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
+            if (fs.isDirectory(fileName)) {
+                delete fs.data[fileName];
+                await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
+                initExplorer(); // Refresh file list
+            } else {
+                if (confirm(`Are you sure you want to delete the file "${fileName}"?`)) {
+                    delete fs.data[fileName];
+                    await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
+                    initExplorer(); // Refresh file list
+                }
+            }
+        }
+    }
+
     // Initialize explorer when the page loads
     window.onload = initExplorer;
 </script>
 </body>
 </html>
+
