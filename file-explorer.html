@@ -65,13 +65,14 @@
 </div>
 
 <script>
+    let fs; // Global filesystem object
+
     // Initialize file explorer
     async function initExplorer() {
         // Initialize storage
         await SuperDiamondFSInitalizeStorage();
 
         // Check if filesystem exists
-        let fs;
         try {
             fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
         } catch (error) {
@@ -118,17 +119,16 @@
         const editingDiv = document.getElementById("editingDiv");
         const fileContentTextarea = document.getElementById("fileContent");
         const fileName = document.getElementsByClassName("file-item")[0].textContent; // Assuming only one file is opened at a time
-        const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
         fs.data[fileName] = fileContentTextarea.value;
         await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
         closeEditingDiv();
+        initExplorer(); // Refresh file list
     }
 
     // Create file
     async function createFile() {
         const fileName = prompt("Enter the name of the new file:");
         if (fileName) {
-            const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
             if (!fs.isDirectory(fileName)) {
                 const content = prompt("Enter the content of the new file:");
                 fs.data[fileName] = content || '';
@@ -144,7 +144,6 @@
     async function createDirectory() {
         const dirName = prompt("Enter the name of the new directory:");
         if (dirName) {
-            const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
             if (!fs.isDirectory(dirName)) {
                 fs.data[dirName] = {};
                 await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
@@ -159,7 +158,6 @@
     async function deleteFile() {
         const fileName = prompt("Enter the name of the file or directory to delete:");
         if (fileName) {
-            const fs = await SuperDiamondFS.loadFSFromStorage("myFileSystem");
             if (fs.isDirectory(fileName)) {
                 delete fs.data[fileName];
                 await SuperDiamondFSStore.async.setItem("myFileSystem", fs.data);
@@ -179,4 +177,5 @@
 </script>
 </body>
 </html>
+
 
