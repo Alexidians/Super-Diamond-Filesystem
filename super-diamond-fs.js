@@ -101,9 +101,9 @@ function SuperDiamondFSFilesystemClosed() {
 }
 function SuperDiamondFSFilesystem(name, data, memfs) {
     var MaxFSHandlers = null
-    (async () => {
-        MaxFSHandlers = await SuperDiamondFSConfigStore.async.getItem("MaxFSHandlers");
-    })();
+    (async function() {
+     MaxFSHandlers = await SuperDiamondFSConfigStore.async.getItem("MaxFSHandlers");
+    })(); 
     if(SuperDiamondFS.system.FSHandlersActive + 1 > MaxFSHandlers) {
      var error = new Error("Failed To Create Filesystem. The Maximum Amount of Filesystem handlers have been reached. (ERR_MAX_FS_HANDLERS)");
      error.code = "ERR_MAX_FS_HANDLERS";
