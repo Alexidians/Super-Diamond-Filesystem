@@ -3,11 +3,11 @@ var SuperDiamondFSStore = null;
 var SuperDiamondFSConfigStore = null;
 async function SuperDiamondFSInitalizeStorage() {
     SuperDiamondFSStore = new SuperDiamondStoreConst();
-    SuperDiamondFSStore.dbName = "SuperDiamondFS";
+    SuperDiamondFSStore.dbName = "SuperDiamondFSFilesystems";
     SuperDiamondFSStore.storeName = "Filesystems";
     await SuperDiamondFSStore.async.reload();
     SuperDiamondFSConfigStore = new SuperDiamondStoreConst();
-    SuperDiamondFSConfigStore.dbName = "SuperDiamondFS";
+    SuperDiamondFSConfigStore.dbName = "SuperDiamondFSConfig";
     SuperDiamondFSConfigStore.storeName = "Config";
     await SuperDiamondFSConfigStore.async.reload();
 }
