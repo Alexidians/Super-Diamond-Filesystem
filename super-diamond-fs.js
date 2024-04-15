@@ -104,7 +104,6 @@ function SuperDiamondFSFilesystem(name, data, memfs) {
     (async function() {
         try {
             MaxFSHandlers = await SuperDiamondFSConfigStore.async.getItem("MaxFSHandlers");
-            console.log("MaxFSHandlers:", MaxFSHandlers);
         } catch(err) {
             
         }
@@ -143,6 +142,7 @@ function SuperDiamondFSFilesystem(name, data, memfs) {
      if(this.memfs) {
       MaxSize = MemFSMaxSize;
      }
+     console.log(MaxSize)
      if(calculateObjectSize(newdata) < MaxSize) {
       this.data = newdata;
       this.saveIfNotMemfs()
