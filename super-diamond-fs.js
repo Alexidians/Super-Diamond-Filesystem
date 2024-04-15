@@ -100,10 +100,15 @@ function SuperDiamondFSFilesystemClosed() {
  this.closed = true
 }
 function SuperDiamondFSFilesystem(name, data, memfs) {
-    var MaxFSHandlers = null
+    var MaxFSHandlers;
     (async function() {
-     MaxFSHandlers = await SuperDiamondFSConfigStore.async.getItem("MaxFSHandlers");
-    })(); 
+        try {
+            MaxFSHandlers = await SuperDiamondFSConfigStore.async.getItem("MaxFSHandlers");
+            console.log("MaxFSHandlers:", MaxFSHandlers);
+        } catch(err) {
+            
+        }
+    })();
     if(SuperDiamondFS.system.FSHandlersActive + 1 > MaxFSHandlers) {
      var error = new Error("Failed To Create Filesystem. The Maximum Amount of Filesystem handlers have been reached. (ERR_MAX_FS_HANDLERS)");
      error.code = "ERR_MAX_FS_HANDLERS";
@@ -124,12 +129,16 @@ function SuperDiamondFSFilesystem(name, data, memfs) {
      }
     }
     this.setData = function(newdata) {
-     var StorageFSMaxSize = null
-     var MemFSMaxSize = null
-     (async () => {
-      StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-      MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-     })();
+    var StorageFSMaxSize;
+    var MemFSMaxSize;
+    (async function() {
+        try {
+            StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
+            MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("MemFSMaxSize");
+        } catch(err) {
+            
+        }
+    })();
      var MaxSize = StorageFSMaxSize;
      if(this.memfs) {
       MaxSize = MemFSMaxSize;
@@ -226,10 +235,14 @@ this.deleteFile = async function(filePath) {
      return MaxSize - size;
     }
     this.saveIfNotMemfs = async function() {
-     var StorageFSMaxSize = null
-     (async () => {
-      StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-     })();
+    var StorageFSMaxSize;
+    (async function() {
+        try {
+            StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
+        } catch(err) {
+            
+        }
+    })();
      if(calculateObjectSize(newdata) > StorageFSMaxSize) {
       var error = new Error("Failed to save filesystem. the filesystem is out of space. (ERR_FS_MAX_SIZE_REACHED)");
       error.code = "ERR_FS_MAX_SIZE_REACHED";
