@@ -134,7 +134,6 @@ function SuperDiamondFSFilesystem(name, data, memfs) {
      if(this.memfs) {
       MaxSize = MemFSMaxSize;
      }
-     console.log(MaxSize)
      if(calculateObjectSize(newdata) < MaxSize) {
       this.data = newdata;
       this.saveIfNotMemfs()
