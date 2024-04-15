@@ -199,12 +199,8 @@ this.deleteFile = async function(filePath) {
      return size;
     }
     this.getMaxSpaceInBytes = function() {
-     var StorageFSMaxSize = null
-     var MemFSMaxSize = null
-     (async () => {
-      StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-      MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-     })();
+      var StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
+      var MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
      var MaxSize = StorageFSMaxSize;
      if(this.memfs) {
       MaxSize = MemFSMaxSize;
@@ -213,12 +209,8 @@ this.deleteFile = async function(filePath) {
     }
     this.getRemainingSpaceInBytes = function() {
      var size = calculateObjectSize(this.data);
-     var StorageFSMaxSize = null
-     var MemFSMaxSize = null
-     (async () => {
-      StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-      MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-     })();
+      var StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
+      var MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
      var MaxSize = StorageFSMaxSize;
      if(this.memfs) {
       MaxSize = MemFSMaxSize;
