@@ -77,7 +77,7 @@ var SuperDiamondFS = {
      FSHandlersActive: 0
     },
     FSHandlersActive: function() {
-     return SuperDiamondFS.system.FSHandlersActive
+     return SuperDiamondFS.system.FSHandlersActive;
     },
     loadFSFromStorage: async function(name) {
         if (!SuperDiamondFSStore) {
