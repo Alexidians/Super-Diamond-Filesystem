@@ -127,17 +127,9 @@ function SuperDiamondFSFilesystem(name, data, memfs) {
         }
      }
     }
-    this.setData = function(newdata) {
-    var StorageFSMaxSize;
-    var MemFSMaxSize;
-    (async function() {
-        try {
-            StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-            MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("MemFSMaxSize");
-        } catch(err) {
-            
-        }
-    })();
+    this.setData = async function(newdata) {
+     var StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
+     var MemFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("MemFSMaxSize");
      var MaxSize = StorageFSMaxSize;
      if(this.memfs) {
       MaxSize = MemFSMaxSize;
@@ -235,14 +227,7 @@ this.deleteFile = async function(filePath) {
      return MaxSize - size;
     }
     this.saveIfNotMemfs = async function() {
-    var StorageFSMaxSize;
-    (async function() {
-        try {
-            StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-        } catch(err) {
-            
-        }
-    })();
+    var StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
      if(calculateObjectSize(newdata) > StorageFSMaxSize) {
       var error = new Error("Failed to save filesystem. the filesystem is out of space. (ERR_FS_MAX_SIZE_REACHED)");
       error.code = "ERR_FS_MAX_SIZE_REACHED";
