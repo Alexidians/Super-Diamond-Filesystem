@@ -219,7 +219,7 @@ this.deleteFile = async function(filePath) {
     }
     this.saveIfNotMemfs = async function() {
     var StorageFSMaxSize = await SuperDiamondFSConfigStore.async.getItem("StorageFSMaxSize");
-     if(calculateObjectSize(newdata) > StorageFSMaxSize) {
+     if(calculateObjectSize(this.data) > StorageFSMaxSize) {
       var error = new Error("Failed to save filesystem. the filesystem is out of space. (ERR_FS_MAX_SIZE_REACHED)");
       error.code = "ERR_FS_MAX_SIZE_REACHED";
       throw error;
