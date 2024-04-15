@@ -76,7 +76,9 @@ var SuperDiamondFS = {
     system: {
      FSHandlersActive: 0
     },
-    // Function to load filesystem from storage
+    FSHandlersActive: function() {
+     return SuperDiamondFS.system.FSHandlersActive
+    },
     loadFSFromStorage: async function(name) {
         if (!SuperDiamondFSStore) {
             await SuperDiamondFSInitalizeStorage();
