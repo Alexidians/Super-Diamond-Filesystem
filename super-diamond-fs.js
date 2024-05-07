@@ -1,3 +1,38 @@
+//part of upcoming restriction update (so not too much memory is used):
+function countInstancesOfSuperDiamondFSFileSystem() {
+    var count = 0;
+
+    // Recursive function to traverse through properties
+    function traverse(obj) {
+        // Base case: if obj is an instance of SuperDiamondFSFileSystem, increment count
+        if (obj instanceof SuperDiamondFSFileSystem) {
+            count++;
+        }
+
+        // Recursive case: if obj is an object or array, iterate over its properties or elements
+        if (typeof obj === 'object' && obj !== null) {
+            if (Array.isArray(obj)) {
+                // If obj is an array, iterate over its elements
+                obj.forEach(function(element) {
+                    traverse(element);
+                });
+            } else {
+                // If obj is an object, iterate over its properties
+                Object.keys(obj).forEach(function(key) {
+                    traverse(obj[key]);
+                });
+            }
+        }
+    }
+
+    // Start traversing from the window object
+    traverse(window);
+
+    return count;
+}
+
+
+
 // Initialize storage
 var SuperDiamondFSStore = null;
 var SuperDiamondFSConfigStore = null;
