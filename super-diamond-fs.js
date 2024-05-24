@@ -11,7 +11,122 @@ async function SuperDiamondFSInitalizeStorage() {
     SuperDiamondFSConfigStore.storeName = "Config";
     await SuperDiamondFSConfigStore.async.reload();
 }
+function SuperDiamondFSDataGenEmbed(dataURL) {
+    let fileType = 'unknown';
+    let element;
 
+    // Check if the data URL starts with specific prefixes to determine the file type
+    if (dataURL.startsWith('data:image/')) {
+        fileType = 'image';
+    } else if (dataURL.startsWith('data:audio/')) {
+        fileType = 'audio';
+    } else if (dataURL.startsWith('data:video/')) {
+        fileType = 'video';
+    } else if (dataURL.startsWith('data:text/html')) {
+        fileType = 'iframe';
+    } else if (dataURL.startsWith('data:')) {
+        fileType = 'embed';
+    }
+
+    // Create the appropriate HTML element based on the file type
+    switch (fileType) {
+        case 'image':
+            element = document.createElement('img');
+            element.src = dataURL;
+            break;
+        case 'audio':
+            element = document.createElement('audio');
+            element.src = dataURL;
+            element.controls = true;
+            break;
+        case 'video':
+            element = document.createElement('video');
+            element.src = dataURL;
+            element.controls = true;
+            break;
+        case 'iframe':
+            element = document.createElement('iframe');
+            element.src = dataURL;
+            break;
+        case 'embed':
+            element = document.createElement('embed');
+            element.src = dataURL;
+            break;
+        default:
+            // If the file type is not recognized, return null
+            element = null;
+            break;
+    }
+
+    return element;
+}
+
+
+function isJsonString(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Function to convert a data URL to a Blob
+function dataURLToBlob(dataURL) {
+  const [header, base64Data] = dataURL.split(',');
+  const mime = header.match(/:(.*?);/)[1];
+  const binaryString = atob(base64Data);
+  const length = binaryString.length;
+  const arrayBuffer = new Uint8Array(length);
+  
+  for (let i = 0; i < length; i++) {
+    arrayBuffer[i] = binaryString.charCodeAt(i);
+  }
+
+  return new Blob([arrayBuffer], { type: mime });
+}
+
+function ParseSuperDiamondFSFileWrite(data) {
+  if (typeof data === "string") {
+    return {
+      type: "text",
+      data: data
+    };
+  } else if (data instanceof File) {
+    return {
+      type: "file",
+      data: data
+    };
+  } else if (data instanceof Blob) {
+    return {
+      type: "blob",
+      data: data
+    };
+  } else if (data instanceof FileReader) {
+    return new Promise((resolve, reject) => {
+      data.onload = function() {
+        resolve({
+          type: "blob",
+          data: new Blob([data.result])
+        });
+      };
+      data.onerror = function() {
+        reject(new Error("FileReader error"));
+      };
+    });
+  } else {
+    throw new Error("Unsupported data type");
+  }
+}
+
+function blobToDataURL(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
 function calculateObjectSize(obj) {
     let totalSize = 0;
 
@@ -160,7 +275,20 @@ this.createDirectory = async function(path) {
     }
     await this.setData(newData); // Update the data using setData
 };
-
+this.embedFile = function(filePath) {
+ try {
+  var fileBlob = this.readFile(filePath)
+ } catch(err) {
+  throw new Error("Error Reading File to embed: " + err, { cause: err})
+ }
+ if(fileBlob instanceof Blob) {
+  var dataURL = blobToDataURL(fileBlob);
+  var elem = SuperDiamondFSDataGenEmbed(dataURL);
+  return elem;
+ } else {
+  throw new Error("File to embed is not a blob.");
+ }
+}
 this.writeFile = async function(filePath, content) {
     let newData = { ...this.data }; // Create a new object based on the existing data
     let currentDir = newData;
@@ -175,7 +303,18 @@ this.writeFile = async function(filePath, content) {
     }
     const fileName = directories[directories.length - 1];
     const encodedFileName = SuperDiamondFSEncode(fileName);
-    currentDir[encodedFileName] = SuperDiamondFSEncode(content);
+    var procesedContent = ParseSuperDiamondFSFileWrite(content);
+    var writeContent = "";
+    if(processedContent.type = "text") {
+     writeContent = processedContent.data;
+    }
+    if(processedContent.type = "blob") {
+     writeContent = JSON.stringify({
+      specialType: "awruanvtuinetvhiothoevnmewihntvoemrtevorhntveoirhtnv",
+      data: blobToDataURL(processedContent.data)
+     }
+    })
+    currentDir[encodedFileName] = SuperDiamondFSEncode(writeContent);
     await this.setData(newData); // Update the data using setData
 };
 
@@ -247,7 +386,25 @@ this.deleteFile = async function(filePath) {
         if (!currentDir[encodedFileName]) {
             throw new Error("File does not exist.");
         }
-        return SuperDiamondFSDecode(currentDir[encodedFileName]);
+if (isJsonString(SuperDiamondFSDecode(currentDir[encodedFileName]))) {
+  const decodedString = SuperDiamondFSDecode(currentDir[encodedFileName]);
+  try {
+    const parsedData = JSON.parse(decodedString);
+    if (parsedData && parsedData.specialType === "awruanvtuinetvhiothoevnmewihntvoemrtevorhntveoirhtnv" && parsedData.data) {
+      var JSONContent = parsedData;
+      return dataURLToBlob(JSONContent.data);
+    } else {
+      return decodedString;
+    }
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return decodedString;
+  }
+} else {
+  return SuperDiamondFSDecode(currentDir[encodedFileName]);
+}
+
+
     };
 }
 (async () => {
