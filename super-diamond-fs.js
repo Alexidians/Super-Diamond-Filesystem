@@ -24,6 +24,8 @@ function SuperDiamondFSDataGenEmbed(dataURL) {
         fileType = 'video';
     } else if (dataURL.startsWith('data:text/html')) {
         fileType = 'iframe';
+    } else if (dataURL.startsWith('data:text/css')) {
+        fileType = 'css';
     } else if (dataURL.startsWith('data:')) {
         fileType = 'embed';
     }
@@ -48,6 +50,11 @@ function SuperDiamondFSDataGenEmbed(dataURL) {
             element = document.createElement('iframe');
             element.src = dataURL;
             break;
+        case 'css':
+            element = document.createElement('link');
+            element.rel = 'stylesheet';
+            element.href = dataURL;
+            break;
         case 'embed':
             element = document.createElement('embed');
             element.src = dataURL;
@@ -60,6 +67,7 @@ function SuperDiamondFSDataGenEmbed(dataURL) {
 
     return element;
 }
+
 
 
 function isJsonString(str) {
@@ -87,46 +95,36 @@ function dataURLToBlob(dataURL) {
 }
 
 function ParseSuperDiamondFSFileWrite(data) {
-  if (typeof data === "string") {
-    return {
-      type: "text",
-      data: data
-    };
-  } else if (data instanceof File) {
-    return {
-      type: "file",
-      data: data
-    };
-  } else if (data instanceof Blob) {
-    return {
-      type: "blob",
-      data: data
-    };
-  } else if (data instanceof FileReader) {
-    return new Promise((resolve, reject) => {
-      data.onload = function() {
-        resolve({
-          type: "blob",
-          data: new Blob([data.result])
-        });
-      };
-      data.onerror = function() {
-        reject(new Error("FileReader error"));
-      };
-    });
-  } else {
-    throw new Error("Unsupported data type");
-  }
+    if (typeof data === "string") {
+        return {
+            type: "text",
+            data: data
+        };
+    } else if (data instanceof File) {
+        const reader = new FileReaderSync();
+        const blob = reader.readAsBinaryString(data);
+        return {
+            type: "file",
+            mimeType: data.type,
+            data: new Blob([blob], { type: data.type })
+        };
+    } else if (data instanceof Blob) {
+        return {
+            type: "blob",
+            data: data
+        };
+    } else {
+        throw new Error("Unsupported data type");
+    }
 }
 
+
 function blobToDataURL(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+    const reader = new FileReaderSync();
+    const dataURL = reader.readAsDataURL(blob);
+    return dataURL;
 }
+
 function calculateObjectSize(obj) {
     let totalSize = 0;
 
