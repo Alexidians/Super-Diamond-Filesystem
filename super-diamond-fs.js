@@ -328,7 +328,7 @@ this.writeFile = async function(filePath, content) {
     if(processedContent.type = "blob") {
      writeContent = JSON.stringify({
       specialType: "awruanvtuinetvhiothoevnmewihntvoemrtevorhntveoirhtnv",
-      data: await blobToDataURL(processedContent.data);
+      data: await blobToDataURL(processedContent.data)
      })
     }
     currentDir[encodedFileName] = SuperDiamondFSEncode(writeContent);
