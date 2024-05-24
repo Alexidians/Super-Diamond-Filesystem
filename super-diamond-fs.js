@@ -312,7 +312,7 @@ this.writeFile = async function(filePath, content) {
      writeContent = JSON.stringify({
       specialType: "awruanvtuinetvhiothoevnmewihntvoemrtevorhntveoirhtnv",
       data: blobToDataURL(processedContent.data)
-     }
+     })
     })
     currentDir[encodedFileName] = SuperDiamondFSEncode(writeContent);
     await this.setData(newData); // Update the data using setData
