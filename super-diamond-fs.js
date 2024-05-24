@@ -26,6 +26,8 @@ function SuperDiamondFSDataGenEmbed(dataURL) {
         fileType = 'iframe';
     } else if (dataURL.startsWith('data:text/css')) {
         fileType = 'css';
+    } else if (dataURL.startsWith('data:application/javascript')) {
+        fileType = 'js';
     } else if (dataURL.startsWith('data:')) {
         fileType = 'embed';
     }
@@ -55,6 +57,10 @@ function SuperDiamondFSDataGenEmbed(dataURL) {
             element.rel = 'stylesheet';
             element.href = dataURL;
             break;
+        case 'js':
+            element = document.createElement('script');
+            element.src = dataURL;
+            break;
         case 'embed':
             element = document.createElement('embed');
             element.src = dataURL;
@@ -67,6 +73,7 @@ function SuperDiamondFSDataGenEmbed(dataURL) {
 
     return element;
 }
+
 
 
 
