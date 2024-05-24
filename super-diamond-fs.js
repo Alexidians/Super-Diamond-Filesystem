@@ -303,7 +303,7 @@ this.writeFile = async function(filePath, content) {
     }
     const fileName = directories[directories.length - 1];
     const encodedFileName = SuperDiamondFSEncode(fileName);
-    var procesedContent = ParseSuperDiamondFSFileWrite(content);
+    var processedContent = ParseSuperDiamondFSFileWrite(content);
     var writeContent = "";
     if(processedContent.type = "text") {
      writeContent = processedContent.data;
