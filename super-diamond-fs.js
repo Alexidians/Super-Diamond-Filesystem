@@ -101,20 +101,26 @@ function dataURLToBlob(dataURL) {
   return new Blob([arrayBuffer], { type: mime });
 }
 
-function ParseSuperDiamondFSFileWrite(data) {
+async function ParseSuperDiamondFSFileWrite(data) {
     if (typeof data === "string") {
         return {
             type: "text",
             data: data
         };
     } else if (data instanceof File) {
-        const reader = new FileReaderSync();
-        const blob = reader.readAsBinaryString(data);
-        return {
-            type: "file",
-            mimeType: data.type,
-            data: new Blob([blob], { type: data.type })
-        };
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const blob = reader.result;
+                resolve({
+                    type: "file",
+                    mimeType: data.type,
+                    data: new Blob([blob], { type: data.type })
+                });
+            };
+            reader.onerror = reject;
+            reader.readAsBinaryString(data);
+        });
     } else if (data instanceof Blob) {
         return {
             type: "blob",
@@ -125,12 +131,18 @@ function ParseSuperDiamondFSFileWrite(data) {
     }
 }
 
-
-function blobToDataURL(blob) {
-    const reader = new FileReaderSync();
-    const dataURL = reader.readAsDataURL(blob);
-    return dataURL;
+async function blobToDataURL(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const dataURL = reader.result;
+            resolve(dataURL);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }
+
 
 function calculateObjectSize(obj) {
     let totalSize = 0;
@@ -308,7 +320,7 @@ this.writeFile = async function(filePath, content) {
     }
     const fileName = directories[directories.length - 1];
     const encodedFileName = SuperDiamondFSEncode(fileName);
-    var processedContent = ParseSuperDiamondFSFileWrite(content);
+    var processedContent = await ParseSuperDiamondFSFileWrite(content);
     var writeContent = "";
     if(processedContent.type = "text") {
      writeContent = processedContent.data;
@@ -316,7 +328,7 @@ this.writeFile = async function(filePath, content) {
     if(processedContent.type = "blob") {
      writeContent = JSON.stringify({
       specialType: "awruanvtuinetvhiothoevnmewihntvoemrtevorhntveoirhtnv",
-      data: blobToDataURL(processedContent.data)
+      data: await blobToDataURL(processedContent.data);
      })
     }
     currentDir[encodedFileName] = SuperDiamondFSEncode(writeContent);
